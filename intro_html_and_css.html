@@ -20,6 +20,19 @@
       color:black;
     }
 
+    .block_class {
+      border:solid 5px red;
+      /*border-width:3px;
+      border-color:red;
+      border-style:solid;
+      display:inline;
+      display:block;*/
+
+      margin:50px;
+      padding:20px; /* margin. */
+      width:300px;
+    }
+
     /* id selector - first*/
     #size-60px {
       font-size:60px;
@@ -34,7 +47,12 @@
   <strong><font color="red">strong</font></strong><br>
   <u>underline</u>
 
-  <p>
+  <p class="block_class">
+  this is<br>
+  tag name : p1
+  </p>
+
+  <p class="block_class">
   this is<br>
   tag name : p1
   </p>
@@ -64,6 +82,20 @@
     <li>JavaScript</li>
   </ol>
 
+  <!-- <div> : division. just tag, block elemet = include <br> -->
+  <div class="">
+    im div1
+  </div>
+  <div class="">
+    im div2
+  </div>
+
+  <!-- <span> just tag, inline elemet = not include <br> -->
+  <span>im span1</span>
+  <span>im span2</span>
+
+
+  <br>  <br>
   <a href="https://www.w3.org/TR/html5/" target="_blank" title="html5 specification">Hypertext Markup Language (HTML)</a>
 </body>
 </html>
