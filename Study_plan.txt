@@ -3,13 +3,13 @@ HTML- 5/5
 CSS - 3/5
 JAVASCRIPT - 3/5
 
-HTTP
+HTTP - 4/5
 DOM - 4/5
-DNS
-HOSTING
+DNS - 4/5
+HOSTING - 2/5
 
 ES6+ = ECMAScript
-HTTPS
+HTTPS - 2/5
 
 < JavaScript Library >
 Fetch API , Ajax
