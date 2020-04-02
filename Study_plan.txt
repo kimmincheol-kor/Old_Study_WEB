@@ -12,7 +12,7 @@ ES6+ = ECMAScript
 HTTPS
 
 < JavaScript Library >
-Ajax
+Fetch API , Ajax
 Jquery - 1/5
 
 < JavaScript FrameWork? UI Library? >
