@@ -1,0 +1,27 @@
+< Basic >
+HTML- 5/5
+CSS - 3/5
+JAVASCRIPT - 3/5
+
+HTTP
+DOM - 4/5
+DNS
+HOSTING
+
+ES6+ = ECMAScript
+HTTPS
+
+< JavaScript Library >
+Ajax
+Jquery - 1/5
+
+< JavaScript FrameWork? UI Library? >
+Vue.js
+React.js
+Angular.js
+
+< Back-End Study >
+Node.js
+Java (Spring FrameWork)
+
++ Package Manager
