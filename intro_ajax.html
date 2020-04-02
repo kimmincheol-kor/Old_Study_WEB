@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>ajax</title>
+    <script>
+      function fetchHTML(url){
+        fetch(url).then(function(response){
+          response.text().then(function(text){
+            document.querySelector('article').innerHTML = text;
+          })
+        })
+      }
+    </script>
+  </head>
+  <body>
+    <h1>AJAX Tutorial</h1>
+
+    <ul>
+      <li><a href="#!one" onclick="
+          document.querySelector('article').innerHTML = '<h2>html</h2><p>html is ...</p>';
+        ">goto 1</a></li>
+
+      <li><a href="#!two" onclick="
+        /*fetch('https://jsonplaceholder.typicode.com/todos/1').then(function(response){
+          response.text().then(function(text){
+            document.querySelector('article').innerHTML = text;
+          })
+        })*/
+
+        /*  fetch : get data from parameter
+            then : work other things when get response */
+
+
+        function callbackme(){
+          console.log('callbackme');
+        }
+
+        fetch('https://jsonplaceholder.typicode.com/todos/1').then(callbackme);
+        console.log('call~');
+        ">goto 2</a></li>
+
+      <li><a href="#!three" onclick="fetchHTML('https://jsonplaceholder.typicode.com/todos/1')">goto 3</a></li>
+    </ul>
+
+    <!-- Content Print (Dynamic) -->
+    <article></article>
+
+    <ul id="nav">
+
+    </ul>
+
+    <script>
+      if(location.hash){
+        console.log(location.hash);
+      }
+
+      document.querySelector('#nav').innerHTML = '<li>asd</li>'
+    </script>
+  </body>
+</html>
