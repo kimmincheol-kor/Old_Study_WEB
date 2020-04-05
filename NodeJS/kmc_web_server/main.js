@@ -3,7 +3,7 @@ var fs = require('fs'); // filesystem
 var url = require('url'); // use module 'url'
 var qs = require('querystring');
 
-function makeHTML(title, data, list){
+function makeHTML(title, data, list, button){
   var my_list = list;
 
   if(list === undefined)
@@ -18,12 +18,12 @@ function makeHTML(title, data, list){
   </head>
   <body>
     <h1><a href="/">Home of NODE JS</a></h1>
-    <ol>
-      ${my_list}
-    </ol>
-    <a href="/create">CREATE</a>
-    <h2>${title}</h2>
-    <p>${data}</p>
+    ${my_list}
+    <hr>
+    ${button}
+    <h2>Title : ${title}</h2>
+    <hr>
+    ${data}
   </body>
   </html>
   `
@@ -38,7 +38,9 @@ function makeList_ul(list, list_len){
   var i = 0;
   while(i < list_len)
   {
-    list_ul = list_ul + `<li><a href="/?id=${list[i]}">${list[i]}</a></li>`;
+    if(list[i] != 'Home')
+      list_ul = list_ul + `<li><a href="/?id=${list[i]}">${list[i]}</a></li>`;
+
     i = i+1;
   }
 
@@ -56,15 +58,14 @@ var app = http.createServer(function(request,response){
       return response.writeHead(404);
     }
 
-    // Get Query.
     var queryData = url.parse(req_url, true).query; // extract query , url = "localhost:3000/?id=HTML"
     var queryPathname = url.parse(req_url, true).pathname;
     var query_id = queryData.id;
 
-    if(queryPathname === '/') { // home
+    if(queryPathname === '/') { // Load Page.
       if(queryData.id === undefined) {
         req_url = '/?id=home';
-        query_id = 'home';
+        query_id = 'Home';
       }
 
       // Make Response Message.
@@ -72,31 +73,44 @@ var app = http.createServer(function(request,response){
       var result_list = makeList_ul(dir_list, dir_list.length);
 
       var file_data = fs.readFileSync(`./data/${query_id}`, 'utf8');
-      var result_html = makeHTML(query_id, file_data, result_list);
+      var btn_set = ` <a href="/create">CREATE</a><br>
+                      <a href="/update?id=${query_id}">UPDATE</a><br>
+                      <form action="/delete_data" method="post">
+                        <input type="hidden" name="title" value=${query_id}>
+                        <input type="submit" value="Delete">
+                      </form>
+                      <hr>`;
+
+      if(query_id === 'Home')
+        btn_set = `<a href="/create">CREATE</a><hr>`
+
+      var result_html = makeHTML(query_id, file_data, result_list, btn_set);
 
       response.writeHead(200); // ERROR MESSAGE HEADER
       response.end(result_html);
 
       return response;
-    } // end of if home
+    }
+    ////////////////////////////////////////////////////////////////////////////////////
     else if(queryPathname === "/create") { // create
       var create_title = 'This Is Create Menu'
       var create_data = `
-      <form action="http://localhost:8080/create_data" method="post">
-        <p><input type="text" name="title" placeholder="title"></p>
+      <form action="/create_data" method="post">
 
+        <p><input type="text" name="title" placeholder="title"></p>
         <p><textarea name="description" rows="10" cols="40" placeholder="description"></textarea></p>
 
         <p><input type="submit"></p>
       </form>
       `;
 
-      var result_html = makeHTML(create_title, create_data, "");
+      var result_html = makeHTML(create_title, create_data, '', '');
 
       response.writeHead(200);
       response.end(result_html);
-    } // end of if create
-    else if(queryPathname === '/create_data') { // get POST Message.
+    }
+    ////////////////////////////////////////////////////////////////////////////////////
+    else if(queryPathname === '/create_data') { // get POST -> CREATE.
       // parameter of this web server, 'Request'
 
       var create_body = '';
@@ -117,14 +131,78 @@ var app = http.createServer(function(request,response){
         response.writeHead(302, {Location: `/?id=${post.title}`}); // 302 => Redirection
         response.end();
       });
+    }
+    ////////////////////////////////////////////////////////////////////////////////////
+    else if(queryPathname === "/update") { // UPDATE
+      var update_title = query_id;
+      var update_description = fs.readFileSync(`data/${query_id}`, 'utf8');
+      var update_data = `
+      <form action="/update_data" method="post">
 
+        <input type="hidden" name="title" value=${update_title}>
+        <p><input type="text" name="modified_title" value=${update_title}></p>
+        <p><textarea name="modified_description" rows="10" cols="40" placeholder="description">${update_description}</textarea></p>
 
-    } // end of get POST
+        <p><input type="submit"></p>
+      </form>
+      `;
+
+      var result_html = makeHTML(update_title, update_data, '', '');
+
+      response.writeHead(200);
+      response.end(result_html);
+    }
+    ////////////////////////////////////////////////////////////////////////////////////
+    else if(queryPathname === "/update_data") { // Get POST -> UPDATE
+      var create_body = '';
+
+      request.on('data', function(data){ // when receive request. Do this.
+        create_body = create_body + data;
+      });
+
+      request.on('end', function(){ // no remain data => end, Do this.
+        var post = qs.parse(create_body);
+
+        var title = post.title;
+        var new_title = post.modified_title;
+        var new_description = post.modified_description;
+
+        // Operate modify
+        fs.renameSync(`data/${title}`, `data/${new_title}`);
+        fs.writeFile(`data/${new_title}`, new_description, 'utf8', function(err) {
+          console.log('Creating File is Successed!');
+        });
+
+        response.writeHead(302, {Location: `/?id=${new_title}`}); // 302 => Redirection
+        response.end();
+      });
+    }
+    ////////////////////////////////////////////////////////////////////////////////////
+    else if(queryPathname === "/delete_data") { // DELETE
+      var create_body = '';
+
+      request.on('data', function(data){ // when receive request. Do this.
+        create_body = create_body + data;
+      });
+
+      request.on('end', function(){ // no remain data => end, Do this.
+        var post = qs.parse(create_body);
+
+        var title = post.title;
+
+        // Operate delete
+        fs.unlinkSync(`data/${title}`);
+
+        response.writeHead(302, {Location: `/`}); // 302 => Redirection
+        response.end();
+      });
+    }
+    ////////////////////////////////////////////////////////////////////////////////////
     else { // not found
-      var undefined_page = makeHTML('Fail to Found', 'Please check your URL');
+      var undefined_page = makeHTML('Fail to Found', 'Please check your URL', '','');
       response.writeHead(404);
       response.end(undefined_page);
-    } // end of not found
+    }
 
     return response;
 
