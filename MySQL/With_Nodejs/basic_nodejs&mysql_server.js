@@ -13,11 +13,14 @@ var db = mysql.createConnection({
   database:'tutorial_nodejs'
 });
 
-function makeHTML(title, data, list, button){
-  var my_list = list;
-
+function makeHTML(title, data, list, button, author){
   if(list === undefined)
-    my_list = '';
+    list = '';
+
+  if(author === undefined)
+    author = '';
+  else
+    author = `<p>by. ${author}</p>`;
 
   var content_html = `
   <!doctype html>
@@ -28,12 +31,13 @@ function makeHTML(title, data, list, button){
   </head>
   <body>
     <h1><a href="/">Home of NODE JS</a></h1>
-    ${my_list}
+    ${list}
     <hr>
     ${button}
     <h2>Title : ${title}</h2>
     <hr>
     ${data}
+    ${author}
   </body>
   </html>
   `
@@ -57,6 +61,20 @@ function makeList_ul(list){
    list_ul + '</ul>'; // end of make page list
 
   return list_ul;
+}
+
+function makeSelect(authors) {
+  var select = `<select name="author">`;
+
+  var i=0;
+  while(i < authors.length) {
+    select += `<option value='${authors[i].id}'>${authors[i].name}</option>`;
+    i++;
+  }
+
+  select += `</select>`;
+
+  return select;
 }
 
 var app = http.createServer(function(request,response){
@@ -95,10 +113,10 @@ var app = http.createServer(function(request,response){
                           </form>
                           <hr>`;
 
-          db.query('SELECT * FROM topic WHERE id = ?', [filteredID], function(err, topic){
-            if(err) throw err;
+          db.query('SELECT * FROM topic LEFT JOIN author ON topic.author_id=author.id WHERE topic.id = ?', [filteredID], function(err, topic){
+            if(err) throw err
 
-            var html = makeHTML(topic[0].title, topic[0].description, result_list, btn_set);
+            var html = makeHTML(topic[0].title, topic[0].description, result_list, btn_set, topic[0].name);
           
             response.writeHead(200); // ERROR MESSAGE HEADER
             response.end(html);
@@ -108,21 +126,32 @@ var app = http.createServer(function(request,response){
     }
     ////////////////////////////////////////////////////////////////////////////////////
     else if(queryPathname === "/create") { // create
-      var create_title = 'This Is Create Menu'
-      var create_data = `
-      <form action="/create_data" method="post">
 
-        <p><input type="text" name="title" placeholder="title"></p>
-        <p><textarea name="description" rows="10" cols="40" placeholder="description"></textarea></p>
+      db.query('SELECT * FROM author', function(err, authors){
+        if(err) throw err
 
-        <p><input type="submit"></p>
-      </form>
-      `;
 
-      var result_html = makeHTML(create_title, create_data, '', '');
+        var create_title = 'This Is Create Menu'
+        var create_data = `
+        <form action="/create_data" method="post">
 
-      response.writeHead(200);
-      response.end(result_html);
+          <p><input type="text" name="title" placeholder="title"></p>
+          <p><textarea name="description" rows="10" cols="40" placeholder="description"></textarea></p>
+          
+          ${makeSelect(authors)}
+
+          <p><input type="submit"></p>
+        </form>
+        `;
+
+        var result_html = makeHTML(create_title, create_data, '', '');
+
+        response.writeHead(200);
+        response.end(result_html);
+        
+      });
+
+      
     }
     ////////////////////////////////////////////////////////////////////////////////////
     else if(queryPathname === '/create_data') { // get POST -> CREATE.
@@ -136,12 +165,13 @@ var app = http.createServer(function(request,response){
 
       request.on('end', function(){ // no remain data => end, Do this.
         var post = qs.parse(create_body);
+        console.log(post);
         // post.tile => create title.
         // post.description => create description.
 
         db.query(`INSERT INTO topic (title, description, created, author_id)
                   VALUES(?, ?, NOW(), ?)`,
-                  [post.title, post.description, 1],
+                  [post.title, post.description, post.author],
                   function(err, results) {
                     if(err) throw err;
 
