@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 
+var cookie = require('cookie')
 var fs = require('fs');
 var path = require('path');
 var sanitizeHtml = require('sanitize-html');
@@ -22,6 +23,17 @@ app.get('/page/:pageId', function(req, res) {
 // Home page.
 app.get('/', function(request, response) {
 
+  var cookies = {};
+  if(request.headers.cookie !== undefined){
+    cookies = cookie.parse(request.headers.cookie);
+    console.log(cookies.user_cookie);
+  }
+  else {
+    response.writeHead(200, {'Set-Cookie' : ['user_cookie=first_cookie']});
+    console.log('give cookie!');
+  }
+  
+
   fs.readdir('./data', function(error, filelist){
   var title = 'Welcome';
   var description = 'Hello, Node.js';
@@ -30,7 +42,7 @@ app.get('/', function(request, response) {
    `<h2>${title}</h2>${description}`,
     `<a href="/create">create</a>`
   );
-  response.writeHead(200);
+  //response.writeHead(200);
   response.end(html);
   });
 });
