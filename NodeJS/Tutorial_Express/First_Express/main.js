@@ -29,7 +29,11 @@ app.get('/', function(request, response) {
     console.log(cookies.user_cookie);
   }
   else {
-    response.writeHead(200, {'Set-Cookie' : ['user_cookie=first_cookie']});
+    response.writeHead(200, {'Set-Cookie':[
+      'user_cookie=first_cookie', // session cookie
+      'session_cookie=sess', // session cookie
+      `permanent_cookie=perm; Max-Age=${60*60*24*7}` // permanent cookie : a week
+    ]});
     console.log('give cookie!');
   }
   
