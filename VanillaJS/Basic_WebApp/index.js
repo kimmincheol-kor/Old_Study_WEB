@@ -6,7 +6,7 @@ function sayHello(username) {
     alert(`Hello ${username}`);
 }
 
-sayHello(my_title.innerText);
+// sayHello(my_title.innerText);
 
 // DOM : Document Object Model
 // Modifying DOM !!
@@ -14,7 +14,6 @@ sayHello(my_title.innerText);
 console.dir(my_title);
 
 my_title.innerText = "Second";
-my_title.style.color = "blue";
 
 console.dir(document);
 
