@@ -4,7 +4,9 @@ const dom_toDoList = document.querySelector(".js-todolist");
 
 const TODO_LIST_LS = "toDoList";
 
-var toDoArray = [];
+const toDoArray = [];
+
+localStorage.removeItem(TODO_LIST_LS);
 
 function handlerSubmit(event){
     event.preventDefault();
@@ -12,8 +14,16 @@ function handlerSubmit(event){
     const curInput = dom_toDoInput.value;
     dom_toDoInput.value = "";
     
-    toDoArray.push({id : toDoArray.length + 1, text : curInput});
+    const toDoObj = {
+        id : toDoArray.length + 1,
+        text : curInput
+    };
 
+    console.log(toDoObj);
+
+    toDoArray.push(toDoObj);
+
+    console.log(toDoArray);
     saveTodo();
 }
 
@@ -22,9 +32,6 @@ function handlerDelete(event){
 }
 
 function paintToDo(){
-    while (dom_toDoList.firstChild) {
-        dom_toDoList.removeChild(dom_toDoList.firstChild);
-    }
 
     for(let i=0; i<toDoArray.length; i++)
     {
@@ -49,23 +56,18 @@ function delToDo(target){
 }
 
 function saveTodo(){
-    console.log(toDoArray);
-    console.log(JSON.stringify(toDoArray));
-    localStorage.setItem(TODO_LIST_LS, JSON.stringify(toDoArray));
+    localStorage.setItem(TODO_LIST_LS, toDoArray);
     loadToDo();
 }
 
 function loadToDo(){
-    const list = JSON.parse(localStorage.getItem(TODO_LIST_LS));
-    console.log(list);
+    const list = localStorage.getItem(TODO_LIST_LS);
 
     if(list !== null){
         // exist todo
-        toDoArray = [];
-
         for(let i=0; i<list.length; i++)
         {
-            toDoArray.push({id:list[i].id, text:list[i].text});
+            toDoArray.push({id:toDoArray.length+1, text:list[i].text});
         }
 
         paintToDo();
