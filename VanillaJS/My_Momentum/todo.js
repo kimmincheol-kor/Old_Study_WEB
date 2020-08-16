@@ -18,7 +18,21 @@ function handlerSubmit(event){
 }
 
 function handlerDelete(event){
+    const btn = event.target;
+    const target_li = btn.parentNode;
 
+    toDoArray = toDoArray.filter(function(todo) {
+        if(todo.id > target_li.id)
+        {
+            todo.id -= 1;
+            return true;
+        }
+
+        return todo.id != target_li.id;
+    });
+    console.log(toDoArray);
+
+    saveTodo();
 }
 
 function paintToDo(){
@@ -32,12 +46,15 @@ function paintToDo(){
         const delBtn = document.createElement("button");
         const span = document.createElement("span");
 
+        delBtn.addEventListener("click", handlerDelete);
+
         delBtn.innerText = "X";
 
         span.innerText = toDoArray[i].text;
 
         li.appendChild(span);
         li.appendChild(delBtn);
+        li.id = i+1;
 
         dom_toDoList.appendChild(li);
     }
@@ -49,15 +66,12 @@ function delToDo(target){
 }
 
 function saveTodo(){
-    console.log(toDoArray);
-    console.log(JSON.stringify(toDoArray));
     localStorage.setItem(TODO_LIST_LS, JSON.stringify(toDoArray));
     loadToDo();
 }
 
 function loadToDo(){
     const list = JSON.parse(localStorage.getItem(TODO_LIST_LS));
-    console.log(list);
 
     if(list !== null){
         // exist todo
