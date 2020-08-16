@@ -9,6 +9,9 @@ const HIDE_DOM = "hide";
 function handlerLogout(event){
     localStorage.removeItem(USER_NAME_LS);
     askForName();
+
+    dom_toDoform.classList.add(HIDE_DOM);
+    dom_toDoList.classList.add(HIDE_DOM);
 }
 
 function handlerSubmit(event){
@@ -18,7 +21,13 @@ function handlerSubmit(event){
     console.log(inputName);
 
     dom_logout.classList.remove(HIDE_DOM);
+    
     saveName(inputName);
+
+    dom_toDoform.classList.remove(HIDE_DOM);
+    dom_toDoList.classList.remove(HIDE_DOM);
+    toDoArray = [];
+    saveTodo();
 }
 
 //////////////////////////////////////////////////////////////////
